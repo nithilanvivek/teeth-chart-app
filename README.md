@@ -13,7 +13,7 @@ Open-source app editions by Nithilan Vivek. [Project website](https://nithi.land
 
 ## Releases
 
-Download packages from [GitHub Releases](https://github.com/vivekroark-cpu/teeth-chart-app/releases). Compiled packages are release attachments, not committed to source history. Checksums accompany downloads. Existing files are republished unchanged; publishing them does not add new platform testing or signing.
+Download packages from [GitHub Releases](https://github.com/nithilanvivek/teeth-chart-app/releases). Compiled packages are release attachments, not committed to source history. Checksums accompany downloads. Existing files are republished unchanged; publishing them does not add new platform testing or signing.
 
 The downloadable desktop/mobile release is v1.0. The Microsoft Store upload package declares 1.0.0.0. The browser edition is a current source snapshot and is not the code contained in that older desktop MSIX. Existing iOS packages use device-specific development signing and are not attached as public installers.
 
