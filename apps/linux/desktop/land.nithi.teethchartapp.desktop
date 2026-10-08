@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Teeth Chart App
+Comment=Create and annotate saved dental charts
+Exec=teeth-chart-app
+Icon=land.nithi.teethchartapp
+Terminal=false
+Categories=Education;Science;
+Keywords=teeth;dental;chart;
+

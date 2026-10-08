@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f6f8fb">
+  <meta name="description" content="A quiet workspace for dental charting. Annotate teeth and gum spaces, keep chart history, and save or share charts online.">
+  <title>Online Teeth Chart App — Dental Charting</title>
+  <link rel="canonical" href="https://nithi.land/teeth">
+  <meta property="og:title" content="Online Teeth Chart App — Dental Charting">
+  <meta property="og:description" content="Annotate teeth and gum spaces, keep chart history, and save or share charts online.">
+  <meta property="og:url" content="https://nithi.land/teeth">
+  <link rel="icon" type="image/png" href="/tools/teeth-chart/favicon.png?v=20260911m">
+  <link rel="stylesheet" href="/tools/teeth-chart/styles.css?v=20260925f">
+</head>
+<body>
+  <main class="library-home" data-library-home hidden>
+    <header class="library-header"><a class="brand" href="/teeth"><img src="/assets/downloads/icons/Teeth-Chart-App-Icon-1024.png" width="44" height="44" alt=""><span>Teeth Chart App<small>by nithi.land</small></span></a><div class="library-header-actions"><button class="button" data-action="help" aria-label="Help" title="Restart the tour"><i data-icon="help"></i><span>Help</span></button><button class="button" data-action="storage">Save options</button><button class="button" data-action="account" data-account-button>Sign in</button></div></header>
+    <section class="library-intro"><div><span class="eyebrow">YOUR LIBRARY</span><h1>Your charts</h1><p>A place for every smile. Pick up where you left off.</p></div><button class="button primary" data-action="new"><i data-icon="plus"></i> New chart</button></section>
+    <section class="template-gallery" aria-labelledby="template-heading"><h2 id="template-heading">Start a new chart</h2><div class="template-grid" data-template-gallery></div></section>
+    <div class="library-toolbar"><label class="library-search"><span class="sr-only">Search charts</span><input type="search" data-library-search placeholder="Search your charts" aria-label="Search charts"></label><span>Last edited · newest first</span><button class="button" data-action="import-backup">Import Backup JSON file</button></div>
+    <p class="local-file-status" data-home-file-status role="status" hidden></p>
+    <p class="local-file-status cloud-save-status" data-home-cloud-status role="status" hidden></p>
+    <p class="library-status" data-library-status role="status"></p><button class="button" data-library-retry hidden>Retry loading library</button>
+    <section class="library-grid" data-library-grid aria-label="Chart library"></section>
+    <footer class="library-footer"><span data-home-storage></span><a href="/">nithi.land</a></footer>
+  </main>
+  <script>if(/^\/(?:teeth|t)\/?$/.test(location.pathname)){document.querySelector('[data-library-home]').hidden=false;document.title='Online Teeth Chart App — Dental Charting';}</script>
+  <button class="button exit-fullscreen" data-action="exit-fullscreen" data-exit-fullscreen hidden aria-label="Exit full screen">Exit full screen</button>
+  <div class="app-shell" hidden>
+    <aside class="sidebar" aria-label="Saved charts">
+      <a class="brand" href="/teeth" aria-label="Chart library"><img src="/assets/downloads/icons/Teeth-Chart-App-Icon-1024.png" width="40" height="40" alt=""><span>Teeth Chart App<small>by nithi.land</small></span></a>
+      <button class="sidebar-action" data-action="home"><i data-icon="home"></i> All charts</button><div class="sidebar-heading"><span>MY CHARTS</span><button class="icon-button" data-action="new" aria-label="New chart" title="New chart"><i data-icon="plus"></i></button></div>
+      <nav class="chart-list" data-chart-list aria-label="Choose a chart"></nav>
+      <button class="new-chart" data-action="new"><i data-icon="plus"></i> New chart</button>
+      <div class="sidebar-bottom">
+        <button class="sidebar-action" data-action="reload"><i data-icon="history"></i> Reload saved charts</button>
+        <button class="sidebar-action" data-action="import-backup"><i data-icon="import"></i> Import Backup JSON file</button>
+        <div class="local-storage"><i data-icon="device"></i><div><span data-library-location>On this browser</span><small data-library-hint>Sign in to save online.</small></div></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div class="header-title"><span class="eyebrow">YOUR WORKSPACE</span><div class="chart-title-row"><h1 data-chart-name>My first chart</h1><button class="icon-button rename-chart" data-action="rename" aria-label="Rename chart" title="Rename chart"><i data-icon="pencil"></i></button></div><span class="save-status" data-save-status role="status"><i data-icon="check-circle"></i> Saved in this browser</span></div>
+        <div class="header-actions"><button class="button" data-action="help" aria-label="Help" title="Restart the tour"><i data-icon="help"></i><span>Help</span></button><button class="button" data-action="home" aria-label="All charts" title="All charts"><i data-icon="home"></i></button><button class="button" data-action="storage" aria-label="Save options"><i data-icon="device"></i><span>Save options</span></button><button class="button" data-action="fullscreen" aria-label="Full screen"><i data-icon="fullscreen"></i></button><button class="button" data-action="account" data-account-button disabled>Checking account…</button><button class="button primary" data-action="share"><i data-icon="share"></i><span>Share</span></button><button class="button" data-action="copy">Make a copy</button><button class="button" data-action="history"><i data-icon="history"></i><span>History</span></button><button class="button" data-action="import" aria-label="Import chart" title="Import chart"><i data-icon="import"></i><span>Import chart</span></button><button class="button" data-action="export"><i data-icon="export"></i><span>Export</span></button></div>
+      </header>
+      <div class="mobile-chart-switch"><button class="icon-button" data-action="delete-chart" title="Delete chart" aria-label="Delete current chart"><i data-icon="trash"></i></button><label for="chart-select">Chart</label><select id="chart-select" data-chart-select></select><button class="icon-button" data-action="new" aria-label="Create chart"><i data-icon="plus"></i></button><button class="icon-button" data-action="reload" aria-label="Reload saved charts"><i data-icon="history"></i></button><button class="icon-button" data-action="import-backup" aria-label="Import Backup JSON file" title="Import Backup JSON file"><i data-icon="import"></i></button></div>
+      <div class="preview-banner" data-preview-banner hidden><div><i data-icon="history"></i><span>Viewing an earlier version<small data-preview-time></small></span></div><div><button class="button" data-action="exit-preview">Back to current</button><button class="button primary" data-action="restore">Restore version</button></div></div>
+
+      <div class="cloud-notice" data-cloud-notice role="status" hidden></div>
+      <section class="chart-card" aria-labelledby="chart-heading">
+        <div class="chart-card-header"><div><h2 id="chart-heading">Dental chart</h2><p>Select a tooth or gum space to annotate.</p></div><div class="mode-control" role="group" aria-label="Chart focus"><button data-mode="tooth" aria-pressed="true">Teeth</button><button data-mode="space" aria-pressed="false">Gum spaces</button></div></div>
+        <div class="chart-stage"><svg data-tooth-chart viewBox="50 14 700 628" role="group" aria-label="Interactive upper and lower dental chart"></svg></div>
+        <div class="chart-legend" aria-label="Tooth status legend"><span><b style="--swatch:#b6bbc3"></b>Unmarked</span><span><b style="--swatch:#e6edf5"></b>Permanent</span><span><b style="--swatch:#64b5e8"></b>Milk</span><span><b style="--swatch:#b393e2"></b>Wisdom</span><span><b style="--swatch:#ec9c97"></b>Empty</span><span><b style="--swatch:#e4c36d"></b>Not erupted</span><span><b style="--swatch:#e6a668"></b>Fake tooth</span></div>
+        <div class="chart-card-footer"><span data-mark-count>0 of 64 items annotated</span><span>FDI tooth numbering <span class="footer-dot">·</span> Patient’s perspective</span></div>
+      </section>
+      <footer class="workspace-footer"><span><i data-icon="device"></i> Export a JSON copy to keep a portable backup.</span><button class="text-button danger-text" data-action="clear">Clear chart</button></footer>
+      <p class="storage-error" data-storage-error role="alert" hidden></p>
+    </main>
+
+    <aside class="inspector" aria-label="Annotation editor">
+      <p class="local-file-status" data-local-file-status role="status" hidden></p>
+      <p class="local-file-status cloud-save-status" data-local-cloud-status role="status" hidden></p>
+      <div class="inspector-heading"><h2>Annotation</h2><span class="badge" data-annotation-state>Unmarked</span></div>
+      <div class="selection-summary"><div class="tooth-number" data-selection-number>11</div><div><h3 data-selection-name>Central incisor</h3><p data-selection-location>Upper right · U8</p></div></div>
+      <div class="item-navigation"><button class="icon-button" data-action="previous-item" aria-label="Previous item" title="Previous item"><i data-icon="chevron-left"></i></button><span>Selected item</span><button class="icon-button" data-action="next-item" aria-label="Next item" title="Next item"><i data-icon="chevron-right"></i></button></div>
+      <p class="fdi-detail" data-fdi-detail>Permanent 11 <span>·</span> Milk 51</p>
+      <form data-annotation-form>
+        <fieldset class="status-fieldset"><legend>Status</legend><div class="status-grid" data-status-options></div></fieldset>
+        <fieldset class="modifier-fieldset" data-modifiers><legend>Additional details</legend>
+          <label class="modifier"><span><i data-icon="wobbly"></i>Wobbly</span><input type="checkbox" name="wobbly" role="switch"><span class="switch" aria-hidden="true"></span></label>
+          <label class="modifier"><span><i data-icon="filled"></i>Filled</span><input type="checkbox" name="filled" role="switch"><span class="switch" aria-hidden="true"></span></label>
+          <label class="modifier"><span><i data-icon="cavity"></i>Cavity</span><input type="checkbox" name="cavity" role="switch"><span class="switch" aria-hidden="true"></span></label>
+          <label class="modifier"><span><i data-icon="pain"></i>Painful / sensitive</span><input type="checkbox" name="painful" role="switch"><span class="switch" aria-hidden="true"></span></label>
+        </fieldset>
+        <label class="note-label" for="annotation-note">Note <span>Optional</span></label><textarea id="annotation-note" name="note" placeholder="Add a detail you’d like to remember…" rows="4" maxlength="10000"></textarea>
+        <button class="button primary save-button" type="submit"><i data-icon="check"></i><span data-save-label>Save now</span></button>
+        <button class="text-button remove-marking" data-action="remove" type="button" hidden>Remove annotation</button>
+      </form>
+      <button class="text-button back-to-chart" data-action="back-to-chart"><i data-icon="chevron-up"></i> Back to chart</button>
+      <div class="inspector-tip"><i data-icon="info"></i><p>Your latest 64 saved changes are kept in <button class="inline-button" data-action="history">History</button>, so you can revisit an earlier version.</p></div>
+    </aside>
+  </div>
+  <main class="access-gate" data-access-gate aria-labelledby="access-title">
+    <div class="access-card">
+      <div class="access-spinner" data-access-spinner role="status" aria-label="Loading"></div><div class="access-lock" data-access-lock hidden aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="11" y="21" width="26" height="21" rx="6" stroke="currentColor" stroke-width="2.5"/><path d="M16 21v-7a8 8 0 0 1 16 0v7" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="31" r="2.5" fill="currentColor"/></svg></div>
+      <h1 id="access-title" data-access-title>Loading chart…</h1>
+      <p data-access-help>Checking access to this chart.</p>
+      <p class="access-email" data-access-email hidden></p>
+      <div class="access-actions" data-access-actions hidden><button class="button primary" data-access-retry hidden>Try again</button><button class="button primary" data-request-access>Request access</button><button class="button" data-access-signin>Sign in</button></div>
+      <p class="access-message" data-access-message role="status"></p>
+    </div>
+  </main>
+  <dialog class="dialog auth-dialog" data-auth-dialog aria-labelledby="auth-title">
+    <div class="dialog-header"><h2 id="auth-title">Sign in with email</h2><button class="icon-button" type="button" data-close-auth aria-label="Close sign-in">×</button></div>
+    <form class="auth-form">
+      <label>Email<input type="email" name="email" autocomplete="email" required placeholder="you@example.com"></label>
+      <label hidden>Email code<input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="([0-9]{6}|[0-9]{8})" minlength="6" maxlength="8" placeholder="Enter your 6- or 8-digit code"></label>
+      <p class="auth-hint" data-auth-hint>We’ll email you a one-time code.</p>
+      <p class="auth-message" data-auth-message role="status" hidden></p>
+      <button class="button primary" type="submit">Send code</button>
+      <div class="auth-links" data-auth-links hidden><button type="button" data-resend-code>Resend code</button><button type="button" data-change-email>Use a different email</button></div>
+      <div data-auth-social>
+        <div class="auth-divider">OR</div>
+        <button class="button auth-provider auth-gitlab" type="button" data-signin-gitlab><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#e24329" d="M12 22 16.4 8.5H7.6Z"/><path fill="#fc6d26" d="M12 22 7.6 8.5H1.5ZM12 22l4.4-13.5h6.1Z"/><path fill="#fca326" d="M1.5 8.5 0 13.2 12 22ZM22.5 8.5 24 13.2 12 22Z"/><path fill="#e24329" d="M1.5 8.5 3.7 1.8a.5.5 0 0 1 .9 0l3 6.7ZM22.5 8.5l-2.2-6.7a.5.5 0 0 0-.9 0l-3 6.7Z"/></svg><span>Sign in with GitLab</span></button>
+        <button class="button auth-provider auth-zoom" type="button" data-signin-zoom><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2" y="6" width="13" height="12" rx="3"/><path d="m17 10 5-4v12l-5-4Z"/></svg><span>Sign in with Zoom</span></button>
+      </div>
+    </form>
+  </dialog>
+  <input type="file" data-import-chart-file accept=".json,application/json" hidden>
+  <input type="file" data-import-file accept=".json,application/json" hidden>
+  <dialog class="dialog" data-dialog aria-labelledby="dialog-title"><div class="dialog-header"><h2 id="dialog-title"></h2><button class="icon-button" data-close-dialog aria-label="Close dialog"><i data-icon="close"></i></button></div><div class="dialog-body" data-dialog-body></div><div class="dialog-actions" data-dialog-actions></div></dialog>
+  <div class="toast" data-toast role="status" hidden><i data-icon="check-circle"></i><span></span></div>
+  <noscript><div class="noscript"><h1>Online Teeth Chart App</h1><p>Annotate teeth and gum spaces, keep chart history, and save or share charts online. Enable JavaScript to open your chart library.</p></div></noscript>
+  <script>if(/^\/(?:teeth|t)\/?$/.test(location.pathname))document.querySelector('[data-access-gate]').hidden=true;</script>
+  <script src="/tools/teeth-chart/vendor/supabase-2.116.0.js"></script><script src="/tools/teeth-chart/config.js"></script><script src="/tools/teeth-chart/auth.js?v=20260925f"></script><script src="/tools/teeth-chart/cloud.js?v=20261002a"></script>
+  <script src="/tools/teeth-chart/model.js?v=20260920b"></script><script src="/tools/teeth-chart/chart.js?v=20260920b"></script><script src="/tools/teeth-chart/access.js?v=20260912f"></script><script src="/tools/teeth-chart/autosave.js?v=20260912f"></script><script src="/tools/teeth-chart/navigation.js?v=20260912f"></script>
+  <script src="/tools/teeth-chart/sync.js?v=20260912f"></script>
+  <script src="/tools/teeth-chart/local-file.js?v=20261005a"></script>
+  <script src="/tools/teeth-chart/library.js?v=20261002a"></script>
+  <script src="/tools/teeth-chart/tour.js?v=20260920a"></script>
+  <script src="/tools/teeth-chart/backup.js?v=20260912f"></script>
+  <script src="/tools/teeth-chart/app.js?v=20261005a"></script>
+</body>
+</html>

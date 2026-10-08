@@ -1,0 +1,13 @@
+{
+  "name": "teeth-chart-app",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "node scripts/serve-static.mjs --port 4174",
+    "test": "node --test tests/teeth-chart-*.test.js"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

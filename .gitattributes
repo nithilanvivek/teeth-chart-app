@@ -1,0 +1,5 @@
+apps/conway-native/tests/fixtures/v2-original-source.py -text -whitespace
+apps/android/gradlew.bat -text -whitespace
+apps/linux/desktop/land.nithi.teethchartapp.desktop -text -whitespace
+assets/downloads/teeth-chart-app/TeethChartApp.py -text -whitespace
+tools/teeth-chart/vendor/supabase-2.116.0.js -text -whitespace

@@ -1,0 +1,79 @@
+name: Build legacy Linux packages
+# Builds the public AppImage and DEB downloads.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.file_arch }} packages
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            file_arch: x86_64
+            appimage_arch: x86_64
+          - runner: ubuntu-22.04-arm
+            file_arch: arm64
+            appimage_arch: aarch64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes desktop-file-utils python3-pip python3-tk libfuse2 xvfb
+          python3 -m pip install --user 'pyinstaller==6.16.0'
+
+      - name: Download AppImage packaging tool
+        env:
+          APPIMAGE_ARCH: ${{ matrix.appimage_arch }}
+        run: |
+          curl --fail --location --retry 3 \
+            --output "$RUNNER_TEMP/appimagetool" \
+            "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage"
+          chmod +x "$RUNNER_TEMP/appimagetool"
+
+      - name: Build AppImage and DEB packages
+        env:
+          APPIMAGETOOL: ${{ runner.temp }}/appimagetool
+        run: apps/linux/scripts/build-packages.sh
+
+      - name: Verify package metadata
+        run: |
+          test "$(find dist/linux -maxdepth 1 -name '*.AppImage' | wc -l)" -eq 1
+          test "$(find dist/linux -maxdepth 1 -name '*.deb' | wc -l)" -eq 1
+          desktop-file-validate apps/linux/desktop/*.desktop
+          for package in dist/linux/*.deb; do
+            test "$(dpkg-deb --field "$package" Architecture)" = "$(dpkg --print-architecture)"
+          done
+          (cd dist/linux && sha256sum --check "SHA256SUMS-${{ matrix.file_arch }}.txt")
+
+      - name: Smoke-test packaged applications
+        run: |
+          for package in dist/linux/*.AppImage; do
+            timeout 8s xvfb-run --auto-servernum "$package" --appimage-extract-and-run || test "$?" -eq 124
+          done
+          for package in dist/linux/*.deb; do
+            sudo apt-get install --yes "./$package"
+          done
+          timeout 8s xvfb-run --auto-servernum teeth-chart-app || test "$?" -eq 124
+
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v6
+        with:
+          name: nithi-land-linux-${{ matrix.file_arch }}
+          path: |
+            dist/linux/*.AppImage
+            dist/linux/*.deb
+            dist/linux/SHA256SUMS-${{ matrix.file_arch }}.txt
+          if-no-files-found: error
+          retention-days: 14

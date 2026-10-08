@@ -1,0 +1,61 @@
+plugins {
+    id "com.android.application"
+}
+
+def releaseKeystorePath = System.getenv("NITHI_ANDROID_KEYSTORE")
+def releaseStorePassword = System.getenv("NITHI_ANDROID_STORE_PASSWORD")
+def releaseKeyPassword = System.getenv("NITHI_ANDROID_KEY_PASSWORD")
+def releaseKeyAlias = System.getenv("NITHI_ANDROID_KEY_ALIAS") ?: "nithi-land-release"
+
+android {
+    namespace "land.nithi.teethchart"
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+
+    defaultConfig {
+        applicationId "land.nithi.teethchart"
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+    }
+
+    flavorDimensions += "formFactor"
+    productFlavors {
+        mobile {
+            dimension "formFactor"
+        }
+        chromeos {
+            dimension "formFactor"
+            applicationIdSuffix ".chromeos"
+            versionNameSuffix "-chromeos"
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (releaseKeystorePath && releaseStorePassword && releaseKeyPassword) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+                storeType "PKCS12"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    sourceSets {
+        main.java.srcDir("../common/java")
+    }
+}

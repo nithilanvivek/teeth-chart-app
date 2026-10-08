@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+    <meta name="color-scheme" content="dark">
+    <title>Teeth Chart App</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">🦷</span>
+          <div>
+            <h1>Teeth Chart App</h1>
+            <p>Tooth Chart Annotator · AutoSave</p>
+          </div>
+        </div>
+        <div class="chart-picker">
+          <label>
+            <span>Chart name</span>
+            <input data-chart-name value="default_chart" autocomplete="off" spellcheck="false">
+          </label>
+          <button class="primary" data-action="use-chart">Use / Create Chart</button>
+          <label>
+            <span>Saved charts</span>
+            <select data-saved-charts aria-label="Saved charts"></select>
+          </label>
+          <button data-action="load-chart">Load Existing Chart</button>
+          <button data-action="choose-data-folder">Choose Data Folder</button>
+          <span class="folder-status" data-folder-status>Private storage</span>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <aside class="controls" aria-label="Chart controls">
+          <section class="control-section">
+            <h2>What are you marking?</h2>
+            <div class="segmented" role="radiogroup" aria-label="Item type">
+              <label><input type="radio" name="item-type" value="tooth" checked><span>Tooth</span></label>
+              <label><input type="radio" name="item-type" value="space"><span>Gum space</span></label>
+            </div>
+          </section>
+
+          <fieldset data-tooth-options>
+            <legend>Tooth options</legend>
+            <div class="option-list" data-tooth-statuses></div>
+            <div class="flags">
+              <label><input type="checkbox" data-flag="wobbly"> Wobbly tooth</label>
+              <label><input type="checkbox" data-flag="filled"> Filled</label>
+              <label><input type="checkbox" data-flag="cavity"> Cavity</label>
+              <label><input type="checkbox" data-flag="painful"> Painful / Sensitive</label>
+            </div>
+          </fieldset>
+
+          <fieldset data-space-options disabled>
+            <legend>Gum space options</legend>
+            <div class="option-list" data-space-statuses></div>
+          </fieldset>
+
+          <section class="control-section actions">
+            <h2>Actions</h2>
+            <button data-action="reload">Load</button>
+            <button data-action="history">View History</button>
+            <button data-action="import">Import JSON</button>
+            <input data-import-file type="file" accept=".json,application/json" hidden>
+            <button class="danger" data-action="clear">Clear Current Chart</button>
+            <button data-action="export">Export JSON</button>
+          </section>
+
+          <p class="status" data-status aria-live="polite">Ready. Auto-save is ON.</p>
+        </aside>
+
+        <section class="chart-panel">
+          <div class="chart-toolbar">
+            <strong data-current-chart>default_chart</strong>
+            <span data-mark-count>0 marked items</span>
+            <span>Tap a tooth or gum space to annotate it</span>
+          </div>
+          <div class="chart-scroller">
+            <svg data-tooth-chart viewBox="0 0 1240 900" role="img" aria-label="Interactive upper and lower tooth chart"></svg>
+          </div>
+          <div class="selection-detail" data-selection-detail>
+            <strong>No item selected</strong>
+            <span>Tap any oval tooth or rectangular gum space.</span>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="modal" data-dialog>
+      <form method="dialog">
+        <header>
+          <h2 data-dialog-title></h2>
+          <button class="icon-button" value="cancel" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body" data-dialog-body></div>
+        <footer data-dialog-actions></footer>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

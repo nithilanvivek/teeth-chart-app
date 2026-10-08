@@ -1,0 +1,52 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {readFileSync}=require('node:fs');
+const {PGlite}=require('@electric-sql/pglite');
+test('private access emails: request, approval, retry, cancellation and missing key',async()=>{
+ const db=new PGlite();
+ try{
+  await db.exec(`create role anon;create role authenticated;create schema auth;
+   create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
+   create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+   grant usage on schema public,auth to anon,authenticated;
+   create schema vault;create table vault.decrypted_secrets(name text,decrypted_secret text);
+   create schema extensions;create type extensions.http_header as (field text,value text);
+   create type extensions.http_request as (method text,uri text,headers extensions.http_header[],content_type text,content text);
+   create table public.mail_calls(payload jsonb,key text);create table public.mail_reply(status integer);insert into public.mail_reply values(200);
+   create function extensions.http(req extensions.http_request) returns table(status integer,content text) language plpgsql as $$
+   begin insert into public.mail_calls values(req.content::jsonb,(req.headers[2]).value);return query select s.status,'{"id":"test-receipt"}'::text from public.mail_reply s;end $$;
+   insert into auth.users values('00000000-0000-4000-8000-000000000001','owner@private.test',now()),('00000000-0000-4000-8000-000000000002','requester@test.com',now()),('00000000-0000-4000-8000-000000000003','stranger@test.com',now());`);
+  for(const name of ['20260909_teeth_charts','20260911_teeth_domain_sharing','20260911_teeth_access_requests','20260911_teeth_delete_chart','20260911_teeth_retention','20260911_teeth_flexible_sharing','20260911_teeth_delete_fast','20260911_teeth_copy_window','20260911_teeth_access_emails','20260911_teeth_requester_email'])await db.exec(readFileSync('supabase/migrations/'+name+'.sql','utf8'));
+  const uid=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0'),id='10000000-0000-4000-8000-000000000001';
+  const as=async n=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[n?uid(n):'']);await db.exec('set role '+(n?'authenticated':'anon'));};
+  const rpc=async(name,args=[])=>{const result=await db.query('select public.'+name+'('+args.map((_,i)=>'$'+(i+1)).join(',')+') as data',args);return result.rows[0].data;};
+  const worker=async()=>{await db.exec('reset role');return (await db.query('select teeth_private.send_access_emails() as data')).rows[0].data;};
+  await as(1);await rpc('teeth_save_chart',[id,'Private chart title',{}, {version:1,entries:[]},0]);
+  await as(2);await rpc('teeth_request_access',[id]);await rpc('teeth_request_access',[id]);
+  await assert.rejects(()=>db.query('select * from teeth_private.access_emails'),/permission denied/);
+  await assert.rejects(()=>db.query('select teeth_private.send_access_emails()'),/permission denied/);
+  assert.equal((await worker()).status,'missing_email_key');
+  assert.equal((await db.query('select count(*)::int n from teeth_private.access_emails')).rows[0].n,1);
+  await db.exec("insert into vault.decrypted_secrets values('teeth_resend_api_key','test-only-key')");
+  assert.equal((await worker()).sent,1);
+  let calls=(await db.query('select * from public.mail_calls')).rows;assert.deepEqual(calls[0].payload.to,['owner@private.test']);assert.match(calls[0].payload.text,new RegExp(id));assert.match(calls[0].payload.text,/Share/);assert.match(calls[0].payload.text,/requester@test.com requested access/);assert.match(calls[0].payload.html,/Requested by:<\/strong> requester@test.com/);assert.doesNotMatch(calls[0].payload.html,/Private chart title/);
+  assert.equal((await worker()).attempted,0);
+  await as(3);await assert.rejects(()=>rpc('teeth_resolve_access_request',[id,uid(2),'editor',1]),/Only the owner/);
+  await as(1);await rpc('teeth_resolve_access_request',[id,uid(2),'editor',1]);
+  await assert.rejects(()=>rpc('teeth_resolve_access_request',[id,uid(2),'editor',2]),/no longer available/);
+  await db.exec('reset role;update public.mail_reply set status=429');assert.equal((await worker()).sent,0);
+  await db.exec("update teeth_private.access_emails set retry_after=now()-interval '1 second' where finished_at is null;update public.mail_reply set status=200");
+  assert.equal((await worker()).sent,1);calls=(await db.query('select * from public.mail_calls')).rows;
+  assert.deepEqual(calls[1].payload.to,['requester@test.com']);assert.equal(calls[1].key,calls[2].key);assert.deepEqual(calls[1].payload,calls[2].payload);assert.match(calls[2].payload.text,/editor access/);assert.doesNotMatch(calls[2].payload.html,/owner@private|Private chart title/);
+  await as(3);await rpc('teeth_request_access',[id]);await as(1);await rpc('teeth_resolve_access_request',[id,uid(3),'dismiss',2]);assert.equal((await worker()).sent,0);
+  await as(3);await rpc('teeth_request_access',[id]);await as(1);await rpc('teeth_resolve_access_request',[id,uid(3),'viewer',3]);
+  await db.exec("reset role;delete from public.teeth_chart_members where email='stranger@test.com'");assert.equal((await worker()).sent,0);
+  assert.equal((await db.query('select count(*)::int n from public.mail_calls')).rows[0].n,3);
+  await db.exec("update teeth_private.access_emails set finished_at=null,first_attempt_at=now()-interval '24 hours',retry_after=now() where kind='approved'");assert.equal((await worker()).sent,0);
+  assert.equal((await db.query("select count(*)::int n from teeth_private.access_emails where last_error='delivery_unconfirmed'")).rows[0].n,2);
+  await db.exec('reset role');await db.query('update auth.users set email=$1 where id=$2',[`quoted'<tag>&"@test.com`,uid(3)]);
+  await as(3);await rpc('teeth_request_access',[id]);assert.equal((await worker()).sent,1);
+  const escaped=(await db.query('select payload from public.mail_calls')).rows.at(-1).payload;
+  assert.match(escaped.html,/quoted&#39;&lt;tag&gt;&amp;&quot;@test.com/);assert.doesNotMatch(escaped.html,/<tag>/);
+ }finally{await db.close();}
+});
