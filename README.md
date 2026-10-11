@@ -30,3 +30,5 @@ See each platform README. Android builds require a suitable JDK, Android SDK and
 ## Contributing
 
 Open issues and pull requests in this repository. Current app source lives here; nithi.land retains deployed copies and historical download URLs. Do not commit personal charts, autosaves, databases, credentials or signing material.
+
+The author’s hosted browser edition now uses `https://teeth.nithi.land/`, with chart URLs at `/<uuid>`. Older `nithi.land/teeth` and `/t` links redirect there. Browser-only charts can be exported from `https://nithi.land/tools/teeth-chart/` and imported as new copies at the new address, retaining annotations and history. Cloud charts remain with the same users; sign in again and reselect an existing JSON file on the new origin. Self-hosted deployments retain placeholder Supabase configuration and origin-relative chart links; add your exact authentication callback to your own Supabase redirect allowlist.

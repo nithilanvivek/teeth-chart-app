@@ -112,8 +112,8 @@
     const raw=await rpc('teeth_resolve_access_request',{p_id:chart.id,p_requester_id:userId,p_role:role,p_revision:chart._cloud.revision});
     chart._cloud=hydrate(raw)._cloud;return chart;
   }
-  const chartUrl=id=>(typeof location !== 'undefined' ? location.origin : 'https://nithi.land')+'/teeth/'+encodeURIComponent(id);
-  const routeId=()=>/^\/(?:teeth|t)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i.exec(root.location.pathname)?.[1]||null;
+  const chartUrl=id=>{const location=root.location;if(!location||location.hostname==='teeth.nithi.land')return 'https://teeth.nithi.land/'+encodeURIComponent(id);const base=location.pathname.startsWith('/tools/teeth-chart/')?'/tools/teeth-chart':'/teeth';return location.origin+base+'/'+encodeURIComponent(id);};
+  const routeId=()=>{if(!root.location)return null;if(root.location.hostname!=='teeth.nithi.land'&&!/^\/(?:teeth|t|tools\/teeth-chart)\//.test(root.location.pathname))return null;return /^\/(?:(?:teeth|t|tools\/teeth-chart)\/)?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i.exec(root.location.pathname)?.[1]||null;};
   async function flush(){await Promise.all([...queues.values()]);}
   async function flushChart(id){await queues.get((root.TeethAuth.session?.user.id||'anonymous')+':'+id);}
   return {copy,suggestCollaborator,suggestions,resolveSuggestion,deleteAccount,deleteChart,deleteInfo,isDeleting,isDeleted,deadline,openRoute,requestAccess,accessRequests,resolveRequest,normalizeDomain,validDomain,packHistory,unpackHistory,signature,hydrate,save,load,list,libraryCards,setSharing,chartUrl,routeId,flush,flushChart};

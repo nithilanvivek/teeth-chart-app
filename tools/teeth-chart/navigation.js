@@ -1,5 +1,12 @@
-(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.TeethNavigation=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+(function(root,factory){const api=factory(root);if(typeof module==='object'&&module.exports)module.exports=api;else root.TeethNavigation=api;})(typeof globalThis!=='undefined'?globalThis:this,function(root){
   'use strict';
+  function basePath(location=root.location){
+    if(location?.hostname==='teeth.nithi.land')return '';
+    return location?.pathname.startsWith('/tools/teeth-chart/')?'/tools/teeth-chart':'/teeth';
+  }
+  const homePath=()=>basePath()==='/teeth'?'/teeth':basePath()+'/';
+  const chartPath=id=>basePath()+'/'+encodeURIComponent(id);
+  const isHome=()=>root.location?.pathname===homePath()||root.location?.pathname===basePath()||/^\/(?:teeth|t)\/?$/.test(root.location?.pathname||'');
   function requiresSessionCheck(readStorage,href=''){
     // Email callbacks and remembered accounts must finish restoring identity.
     // An ordinary guest opening browser-only charts needs no auth network wait.
@@ -14,5 +21,5 @@
     // A cached cloud copy never substitutes for a fresh permission check.
     return {chart:await loadCloud(id),source:'cloud'};
   }
-  return {requiresSessionCheck,localChart,latestChart,openChart};
+  return {basePath,homePath,chartPath,isHome,requiresSessionCheck,localChart,latestChart,openChart};
 });

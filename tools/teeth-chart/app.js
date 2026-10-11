@@ -1,6 +1,10 @@
 (async () => {
   'use strict';
-  const isHome=()=>/^\/(?:teeth|t)\/?$/.test(location.pathname);
+  const {isHome,homePath,chartPath}=window.TeethNavigation;
+  document.querySelectorAll('a.brand').forEach(link=>link.href=homePath());
+  const recovery=location.hostname==='nithi.land'&&location.pathname.startsWith('/tools/teeth-chart/');
+  document.querySelector('[data-old-library]').hidden=!recovery;
+  document.querySelector('[data-recover-library]').hidden=location.hostname!=='teeth.nithi.land';
   try{if(!isHome()&&window.TeethNavigation.requiresSessionCheck(key=>window.localStorage.getItem(key),location.href))await window.TeethCloud.deadline(window.TeethAuth.ready,8000);}
   catch(error){
     if(!window.TeethAuth.restoreBackupSession(error)){
@@ -103,7 +107,7 @@
         store.persist();
       }
       const current=staged.find(chart=>chart._browserSource.id===cloud.routeId());
-      if(current)window.history.replaceState({},'', '/teeth/'+current.id);
+      if(current)window.history.replaceState({},'', chartPath(current.id));
     }catch(error){showNotice('Browser charts are still saved locally. '+error.message,true);}
   }
   function syncBrowserCharts(){
@@ -132,7 +136,7 @@
   }
   const canEdit=()=>!isHome()&&!accountDeleting&&!blocked&&!libraryBusy&&!deletingCharts.has(store.current.id)&&store.current._cloud?.role!=='viewer'&&!store.current._cloud?.unloaded;
   function showNotice(text,error=false){const el=$('[data-cloud-notice]');el.textContent=text;el.hidden=!text;el.classList.toggle('error',error);}
-  function updateRoute(){if(!isHome()&&!blocked&&!libraryBusy)window.history.replaceState({},'','/teeth/'+store.current.id);}
+  function updateRoute(){if(!isHome()&&!blocked&&!libraryBusy)window.history.replaceState({},'',chartPath(store.current.id));}
   function cacheChart(chart){const index=store.data.charts.findIndex(item=>item.id===chart.id);if(index<0)store.data.charts.push(chart);else store.data.charts[index]=chart;store.data.currentId=chart.id;store.persist();}
   async function saveOnline(chart=store.current,{retry=false}={}){
     if(accountId!==(auth.session?.user.id||null)||accountDeleting||chart._localOnly||deletingCharts.has(chart.id)||cloud.isDeleted(chart.id))return;
@@ -298,7 +302,7 @@
   async function switchChart(id){
     if(!(await confirmDiscard())){$('[data-chart-select]').value=store.current.id;return;}
     try{if(!store.current._cloudUnavailable)await cloud.flushChart(store.current.id).catch(error=>{if(!backup.unavailable(error))throw error;});if(cloudError&&!store.current._cloudUnavailable)throw new Error(cloudError);
-      if(cloud.routeId()!==id)window.history.pushState({},'', '/teeth/'+id);
+      if(cloud.routeId()!==id)window.history.pushState({},'', chartPath(id));
       preview=null;cloudError='';await loadLibrary();
     }catch(error){showNotice(error.message,true);}
 
@@ -354,7 +358,7 @@
         const guest=readGuest(),source=guest.data.charts.find(item=>item.id===chart._browserSource.id);
         if(source&&!guest.writeBlocked&&cloud.signature(source)===chart._browserSource.hash)guest.deleteChart(source.id);
       }
-      if(wasCurrent){preview=null;cloudError='';window.history.replaceState({},'', '/teeth/'+target.current.id);}
+      if(wasCurrent){preview=null;cloudError='';window.history.replaceState({},'', chartPath(target.current.id));}
       toast('Chart deleted');
     }catch(error){
       if(active())showNotice(error.code==='TIMEOUT'?'Deletion could not be confirmed. Check your connection and try deleting again.':error.code==='40001'?'The chart changed again. Please retry deletion.':error.message,true);
@@ -382,7 +386,7 @@
     if(exists){await switchChart(exists.id);return;}
     store.create(input.value);
     if(template)store.commit(window.TeethModel.templateAnnotations(template.id),`Created from ${template.name} template`);
-    window.history.pushState({},'', '/teeth/'+store.current.id);blocked=false;preview=null;selectedKey='upper_tooth_8';mode='tooth';render();afterSave('New chart created');return true;
+    window.history.pushState({},'', chartPath(store.current.id));blocked=false;preview=null;selectedKey='upper_tooth_8';mode='tooth';render();afterSave('New chart created');return true;
   }
   async function renameChart(){
     if(!canEdit()||!(await confirmDiscard()))return;
@@ -423,6 +427,16 @@
     if(blocked)return;
     const payload=store.exportPayload(displayedAnnotations());const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
     const link=document.createElement('a');link.href=url;link.download=(store.current.name.replace(/[^a-zA-Z0-9_ .-]/g,'_')||'teeth-chart')+(preview?' - history':'')+'.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(preview?'History version exported':'Chart exported');
+  }
+  async function downloadLibrary(){
+    if(!await confirmDiscard())return;
+    autosave.flush();
+    const charts=store.data.charts.filter(chart=>!chart._starter&&!chart._cloud?.unloaded);
+    if(!charts.length){toast('No charts are saved in this browser library.',true);return;}
+    const text=window.TeethLocalFile.encode(charts,store.data.currentId,cloud);
+    const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+    const link=document.createElement('a');link.href=url;link.download='Teeth Chart browser backup.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast('Backup downloaded. Open teeth.nithi.land and choose Import Backup JSON file.');
   }
   async function importChart(file){
     const target=store,account=accountId,chart=store.current;
@@ -483,7 +497,7 @@
         added.push(staged.current);
       });
       target.data=staged.data;target.persist();
-      window.history.pushState({},'',charts.length>1?'/teeth':'/teeth/'+store.current.id);blocked=false;libraryBusy=false;preview=null;selectedKey='upper_tooth_8';mode='tooth';render();
+      window.history.pushState({},'',charts.length>1?homePath():chartPath(store.current.id));blocked=false;libraryBusy=false;preview=null;selectedKey='upper_tooth_8';mode='tooth';render();
       toast(`${added.length} chart${added.length===1?'':'s'} imported`,Boolean(store.error));
       await Promise.allSettled(added.map(chart=>saveOnline(chart)));
       if(target===store&&account===accountId){if(isHome())refreshHome();else renderSaveStatus();}
@@ -506,7 +520,7 @@
   }));
   $('[data-chart-select]').addEventListener('change',event=>switchChart(event.target.value));
   function adjacentItem(delta){const info=itemInfo(selectedKey);const position=(info.arch==='upper'?0:16)+info.index;const next=(position+delta+32)%32;selectItem(`${next<16?'upper':'lower'}_${info.type}_${next%16+1}`);}
-  const actions={help:restartTour,copy:copyChart,home:async()=>{if(!(await confirmDiscard()))return;autosave.flush();await exitFullscreen();window.history.pushState({},'', '/teeth');await loadLibrary();},'previous-item':()=>adjacentItem(-1),'next-item':()=>adjacentItem(1),'back-to-chart':()=>$('.chart-card').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}),new:newChart,rename:renameChart,'delete-chart':()=>deleteChart(),clear:clearChart,history,export:async()=>{if(await confirmDiscard())exportChart();},
+  const actions={'download-library':downloadLibrary,help:restartTour,copy:copyChart,home:async()=>{if(!(await confirmDiscard()))return;autosave.flush();await exitFullscreen();window.history.pushState({},'', homePath());await loadLibrary();},'previous-item':()=>adjacentItem(-1),'next-item':()=>adjacentItem(1),'back-to-chart':()=>$('.chart-card').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}),new:newChart,rename:renameChart,'delete-chart':()=>deleteChart(),clear:clearChart,history,export:async()=>{if(await confirmDiscard())exportChart();},
     import:async()=>{if(!preview&&canEdit()&&await confirmDiscard())$('[data-import-chart-file]').click();},
     'import-backup':async()=>{if(await confirmDiscard())$('[data-import-file]').click();},
     remove:async()=>{if(preview||!canEdit())return;const result=await showDialog({title:'Remove annotation?',build:`Remove the saved annotation from ${itemInfo(selectedKey).label}? You can restore it from History.`,actions:[{label:'Cancel',value:'cancel'},{label:'Remove',value:'remove',danger:true}]});if(result==='remove'){store.remove(selectedKey);render();afterSave('Annotation removed');}},
@@ -665,7 +679,7 @@
             mapping.set(original.id,match.id);
           }
           source.data.charts=source.data.charts.filter(c=>!c._starter);source.data.currentId=mapping.get(imported.currentId)||mapping.values().next().value;source.persist();
-          window.history.pushState({},'', '/teeth/'+source.current.id);preview=null;render();
+          window.history.pushState({},'', chartPath(source.current.id));preview=null;render();
         }
       }
       await saveFileNow().catch(()=>{});fileWriter.disconnect();filePreparing=true;renderFileStatus();
@@ -692,7 +706,7 @@
     tourActive=true;
     try{
       autosave.flush();await exitFullscreen();
-      if(!isHome()){window.history.pushState({},'', '/teeth');await loadLibrary();}
+      if(!isHome()){window.history.pushState({},'', homePath());await loadLibrary();}
       startTour();
     }catch(error){tourActive=false;toast(error.message,true);}
   }
@@ -833,7 +847,7 @@
         await cloud.flush().catch(()=>{});await saveFileNow().catch(()=>{});
         if(auth.session?.user.id!==user.id)throw new Error('The signed-in account changed.');
         await cloud.deleteAccount(input.value.trim());
-        if(accountId===user.id){fileWriter.disconnect();clearTimeout(fileTimer);fileTimer=null;window.history.replaceState({},'', '/teeth');}
+        if(accountId===user.id){fileWriter.disconnect();clearTimeout(fileTimer);fileTimer=null;window.history.replaceState({},'', homePath());}
         let cacheCleared=true;try{storage.removeItem(window.TeethModel.STORAGE_KEY+':'+user.id);await fileConnections.delete(user.id);}catch{cacheCleared=false;}
         dialog.close('deleted');accountDeleting=false;
         await auth.forgetDeletedAccount(user.id);
@@ -877,7 +891,7 @@
       if(source._cloud&&auth.session)copied=await cloud.copy(source.id,id,input.value.trim());
       else{const content=source._cloud?await cloud.load(source.id):source;copied={id,name:input.value.trim(),annotations:clone(content.annotations),history:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
       if(accountId!==sourceAccount||store!==target)return;
-      store.data.charts.push(copied);store.data.currentId=copied.id;store.persist();window.history.pushState({},'', '/teeth/'+copied.id);render();if(!copied._cloud)await saveOnline(copied);toast('Copy created. You own this chart.');
+      store.data.charts.push(copied);store.data.currentId=copied.id;store.persist();window.history.pushState({},'', chartPath(copied.id));render();if(!copied._cloud)await saveOnline(copied);toast('Copy created. You own this chart.');
     }catch(error){toast(error.message,true);}
   }
   async function suggestCollaborator(chart){
@@ -1131,14 +1145,14 @@
     ownerRequests=null;if(ownerRequestsOpen)$('[data-dialog]').close('cancel');
     const wasGuest=!accountId,guestFile=!accountId&&next?fileWriter.link:null;
     autosave.flush();autosave.cancel();libraryBusy=true;accessError='';renderAccess();
-    if(!next&&!blocked)window.history.replaceState({},'', '/teeth');
+    if(!next&&!blocked)window.history.replaceState({},'', homePath());
     accountId=next;store=makeStore();listedAccount=null;cloudLibrary=[];homeCards=[];homeError='';homeLoading=false;renderAccess();renderHome();
     fileConnectionEpoch++;rememberedFile=null;rememberedFileError='';filePreparing=false;filePicking=false;fileRestoreChecked=false;fileReconnectOffered=false;fileWriter.disconnect();fileCache.clear();clearTimeout(fileTimer);fileTimer=null;
     if(next)await stageBrowserCharts();
     if(guestFile&&accountId===next){await fileConnections.delete('guest').catch(()=>{});fileWriter.connect(guestFile.handle,guestFile.text,next);await fileWriter.onSaved(fileWriter.link);}
     // Preserve an explicitly opened chart URL, including a local chart just
     // imported from the guest library. Root startup chooses the latest chart.
-    if(wasGuest&&next&&!cloud.routeId())window.history.replaceState({},'', '/teeth');
+    if(wasGuest&&next&&!cloud.routeId())window.history.replaceState({},'', homePath());
     preview=null;cloudError='';await loadLibrary();syncBrowserCharts();await restoreFileConnection();
   });
   window.addEventListener('online',()=>{autosave.flush();retryCloud();if(auth.session)syncBrowserCharts();});

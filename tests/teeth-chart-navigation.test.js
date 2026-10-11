@@ -1,16 +1,18 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {Store}=require('../tools/teeth-chart/model.js');
-const {requiresSessionCheck,openChart,latestChart}=require('../tools/teeth-chart/navigation.js');
+const {requiresSessionCheck,openChart,latestChart,basePath,homePath,chartPath,isHome}=require('../tools/teeth-chart/navigation.js');
 const {chartUrl,routeId}=require('../tools/teeth-chart/cloud.js');
 
-test('new shared links use /teeth and both new and legacy chart paths identify the same chart',()=>{
+test('new shared links use the subdomain and legacy chart paths still identify the same chart',()=>{
   const id='00000000-0000-4000-8000-000000000099',previous=globalThis.location;
   try{
-    assert.equal(chartUrl(id),'https://nithi.land/teeth/'+id);
-    for(const pathname of ['/teeth/'+id,'/teeth/'+id+'/', '/t/'+id]){
+    assert.equal(chartUrl(id),'https://teeth.nithi.land/'+id);
+    for(const pathname of ['/teeth/'+id,'/teeth/'+id+'/', '/t/'+id,'/tools/teeth-chart/'+id]){
       globalThis.location={pathname};assert.equal(routeId(),id);
     }
+    globalThis.location={hostname:'teeth.nithi.land',pathname:'/'+id};assert.equal(routeId(),id);
+    globalThis.location={hostname:'nithi.land',pathname:'/'+id};assert.equal(routeId(),null);
     for(const pathname of ['/teeth','/teeth/','/teeth/invalid']){
       globalThis.location={pathname};assert.equal(routeId(),null);
     }
@@ -63,4 +65,17 @@ test('local loading uses the loading gate without exposing chart content or offe
   assert.equal(nodes.get('.app-shell').hidden,true);assert.equal(nodes.get('[data-access-spinner]').hidden,false);
   assert.equal(nodes.get('[data-access-help]').textContent,'Opening the chart saved in this browser.');assert.equal(nodes.get('[data-access-actions]').hidden,true);
   render(document,{loading:false,blocked:false,local:true});assert.equal(nodes.get('.app-shell').hidden,false);assert.equal(nodes.get('[data-access-gate]').hidden,true);
+});
+
+test('navigation stays on the standalone or recovery origin through library and chart routes',()=>{
+ const previous=globalThis.location,id='00000000-0000-4000-8000-000000000099';
+ try{
+  for(const [hostname,pathname,home,chart] of [
+   ['teeth.nithi.land','/','/','/'+id],
+   ['nithi.land','/tools/teeth-chart/','/tools/teeth-chart/','/tools/teeth-chart/'+id],
+   ['localhost','/teeth','/teeth','/teeth/'+id]]){
+   globalThis.location={hostname,pathname};assert.equal(homePath(),home);assert.equal(chartPath(id),chart);assert.equal(isHome(),true);
+   globalThis.location.pathname=chart;assert.equal(isHome(),false);assert.equal(routeId(),id);
+  }
+ }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
 });

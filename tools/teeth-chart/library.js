@@ -33,7 +33,7 @@
     container.replaceChildren();
     const visible=charts.filter(c=>c.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())).sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));
     for(const chart of visible){
-      const card=node('article','library-card'),link=node('a','library-card-link');link.href='/teeth/'+chart.id;link.setAttribute('aria-label','Open '+chart.name);
+      const card=node('article','library-card'),link=node('a','library-card-link');link.href=window.TeethNavigation.chartPath(chart.id);link.setAttribute('aria-label','Open '+chart.name);
       link.addEventListener('click',event=>{if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;event.preventDefault();onOpen(chart.id);});
       const visual=node('div','library-preview');visual.append(preview(chart.preview||chart.annotations||{}));
       if(chart.shared_with_people){const shared=node('span','library-shared');shared.title='Shared with specific people';shared.setAttribute('aria-label','Shared with specific people');shared.innerHTML='<svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v2"/></svg>';visual.append(shared);}
