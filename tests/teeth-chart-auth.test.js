@@ -60,7 +60,7 @@ test('account deletion clears identity even if remote sign-out fails and stale a
 });
 
 
-for(const [provider,label] of [['gitlab','GitLab'],['zoom','Zoom']]){
+for(const [provider,label] of [['google','Google'],['zoom','Zoom']]){
 test(`${label} sign-in respects the draft guard and uses the configured return URL`,async()=>{
   const t=setup();await t.auth.ready;t.auth.show();
   t.auth.setBeforeChange(async()=>false);await t.find(`[data-signin-${provider}]`).fire('click');
@@ -77,7 +77,11 @@ test(`${label} failures allow retry and pending sign-in blocks other providers a
   t.state.oauthGate=new Promise(done=>resolve=done);t.state.oauthError=new Error(`${label} is temporarily unavailable.`);
   const pending=t.find(`[data-signin-${provider}]`).fire('click');await new Promise(resolve=>setImmediate(resolve));
   assert.equal(t.find(`[data-signin-${provider}]`).disabled,true);assert.equal(t.find('[type=submit]').disabled,true);
-  await t.find(`[data-signin-${provider}]`).fire('click');await t.find(`[data-signin-${provider==='gitlab'?'zoom':'gitlab'}]`).fire('click');await t.form.fire('submit');assert.equal(t.calls.length,1);
+  for(const other of ['google','zoom']){
+    assert.equal(t.find(`[data-signin-${other}]`).disabled,true);
+    await t.find(`[data-signin-${other}]`).fire('click');
+  }
+  await t.form.fire('submit');assert.equal(t.calls.length,1);
   resolve();await pending;assert.equal(t.find('[data-auth-message]').textContent,`${label} is temporarily unavailable.`);
   assert.equal(t.find(`[data-signin-${provider}]`).disabled,false);assert.equal(t.find('[type=submit]').disabled,false);
   t.state.oauthError=null;await t.find(`[data-signin-${provider}]`).fire('click');assert.equal(t.calls.length,2);

@@ -7,7 +7,7 @@
   const title=dialog.querySelector('h2'),message=dialog.querySelector('[data-auth-message]');
   const email=form.elements.email,code=form.elements.code,submit=form.querySelector('[type=submit]');
   const resend=dialog.querySelector('[data-resend-code]'),change=dialog.querySelector('[data-change-email]');
-  const providerNames={gitlab:'GitLab',zoom:'Zoom'};
+  const providerNames={google:'Google',zoom:'Zoom'};
   const providerButtons=Object.keys(providerNames).map(provider=>({provider,button:dialog.querySelector(`[data-signin-${provider}]`)}));
   let session=null,mode='email',busy=false,beforeChange=async()=>true,pendingEmail='',retryAt=0,timer;
   const listeners=new Set(),deletedAccounts=new Set();

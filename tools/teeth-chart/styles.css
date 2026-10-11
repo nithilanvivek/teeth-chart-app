@@ -71,8 +71,10 @@
 .auth-divider{display:flex;align-items:center;gap:14px;margin:20px 0;color:#788293;font-size:11px;letter-spacing:1px}.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--line)}.button.auth-provider{width:100%;min-height:44px;background:#24292f;border-color:#24292f;color:#fff;font-size:12px}.button.auth-provider:hover{background:#32383f;border-color:#32383f}.button.auth-provider svg{width:18px;height:18px;color:inherit}
 
 
-.auth-provider+.auth-provider{margin-top:10px}.button.auth-gitlab{background:#29223c;border-color:#29223c}.button.auth-gitlab:hover{background:#3b3056;border-color:#3b3056}
+.auth-provider+.auth-provider{margin-top:10px}
 
 .button.auth-zoom{background:#0b5cff;border-color:#0b5cff}.button.auth-zoom:hover{background:#0848cc;border-color:#0848cc}
+
+.button.auth-google{background:#fff;border-color:#dadce0;color:#3c4043}.button.auth-google:hover{background:#f8faff;border-color:#b8c8df}
 
 .cloud-save-status.pending{background:#edf4ff;color:#245ca3}
