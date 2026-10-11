@@ -5,7 +5,7 @@
   function start({createChart,finish}) {
     let index=0,target=null,stopped=false,suspended=false,frame=0;
     const steps=[
-      ['Create your first chart','.library-intro [data-action="new"]','Give your chart a name to start. This is your real chart—you can keep it after the tour.'],
+      ['Create your first chart','[data-template="blank"]','Start with the Blank template. Child, Teenager and Adult templates are also available in your library. Give your chart a name—you can keep this real chart after the tour.'],
       ['Make it yours','.chart-title-row','Your chart’s name is here. Use the pencil to rename it whenever you like.'],
       ['Explore a tooth','[data-item-key="upper_tooth_8"]','Hover over a tooth to see its details. Select it to edit its status, additional details and notes.',true],
       ['Choose a tooth status','.status-fieldset','Statuses include Milk and Permanent. Empty, Wisdom, Not yet erupted and Fake tooth each have their own appearance.',true],
