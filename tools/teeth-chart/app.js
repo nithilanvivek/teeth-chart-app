@@ -16,12 +16,14 @@
     }
   }
   const auth=window.TeethAuth,cloud=window.TeethCloud,backup=window.TeethBackup;
+  let desktopApp=window.TeethInstallation.desktopApp(navigator,window);
   const $=selector=>document.querySelector(selector);
   const icons={
     'chevron-left':'m14 6-6 6 6 6','chevron-right':'m10 6 6 6-6 6','chevron-up':'m6 14 6-6 6 6',
     share:'M16 5l4 4-4 4M20 9H9a5 5 0 0 0-5 5v5',
     pencil:'m16 3 5 5-13 13H3v-5L16 3ZM13 6l5 5',
     home:'M3 11l9-8 9 8M5 10v11h5v-7h4v7h5V10',
+    install:'M12 3v11m-4-4 4 4 4-4M4 14v7h16v-7',
     fullscreen:'M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5',
     trash:'M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6',plus:'M12 5v14M5 12h14',close:'M6 6l12 12M6 18L18 6',check:'M5 12l4 4L19 6',
     'check-circle':'M20 11v1a8 8 0 1 1-4.7-7.3M9 11l3 3 8-8',
@@ -47,8 +49,20 @@
   let syncRun=null,accountDeleting=false,welcomeTask=null;
   let homeCards=[],homeLoading=false,homeError='';
   let retryTimer=null,retryRunning=false,retryAfter=0;
-  const storageKey='nithi.teeth.storage.v1';let storageChoice={primary:'browser',backup:'browser'};
-  try{const saved=JSON.parse(storage.getItem(storageKey)||'null');if(saved)storageChoice={...storageChoice,...saved};}catch{}
+  let storageKey=desktopApp?'nithi.teeth.storage.desktop.v1':'nithi.teeth.storage.v1',storageChoice;
+  function readStorageChoice(){
+    storageChoice={primary:'browser',backup:'browser'};
+    try{const saved=JSON.parse(storage.getItem(storageKey)||'null');if(saved)storageChoice={...storageChoice,...saved};}catch{}
+    if(desktopApp){if(storageChoice.primary==='file')storageChoice.primary='browser';storageChoice.backup='browser';}
+  }
+  readStorageChoice();
+  function syncStorageContext(){
+    const next=window.TeethInstallation.desktopApp(navigator,window);
+    if(next===desktopApp)return false;
+    desktopApp=next;storageKey=desktopApp?'nithi.teeth.storage.desktop.v1':'nithi.teeth.storage.v1';readStorageChoice();
+    if(desktopApp){fileConnectionEpoch++;fileWriter.disconnect();rememberedFile=null;rememberedFileError='';fileRestoreChecked=false;fileReconnectOffered=false;clearTimeout(fileTimer);fileTimer=null;}
+    return true;
+  }
   function rememberStorage(){try{storage.setItem(storageKey,JSON.stringify(storageChoice));}catch{}}
   function backupMessage(){return store.error?'Cloud saving is unavailable and the browser backup could not be written. '+store.error:backup.MESSAGE+(storageChoice.backup==='file'&&(!fileWriter.connected||fileWriter.error)?' Your JSON backup needs reconnecting; changes are being saved in this browser instead.':'');}
   function queueRetry(){if(retryTimer||retryRunning||(!accountId&&!store.data.charts.some(c=>c._cloud?.anonymousEdit)))return;retryTimer=setTimeout(()=>{retryTimer=null;retryCloud();},30000);}
@@ -164,10 +178,10 @@
     auth.renderAccount();
     if(isHome()){renderHome();return;}
     const sharedOnline=!auth.session&&store.current._cloud?.anonymousEdit,localFile=!auth.session&&fileWriter.connected&&!fileWriter.error;
-    $('[data-library-location]').textContent=auth.session?'Your cloud library':sharedOnline?'Shared cloud chart':localFile?'Saved to local file':'Only saved on this browser profile.';
-    $('[data-library-hint]').textContent=auth.session?'Synced when changes are saved.':sharedOnline?'Changes save online without signing in.':localFile?fileWriter.link.handle.name:'Charts may be lost! Sign in to save with cloud.';
-    $('.local-storage').classList.toggle('storage-local',!auth.session&&!sharedOnline&&!localFile);
-    $('.local-storage').classList.toggle('storage-cloud',Boolean(auth.session||sharedOnline||localFile));
+    $('[data-library-location]').textContent=auth.session?'Your cloud library':sharedOnline?'Shared cloud chart':desktopApp?'Saved in this app':localFile?'Saved to local file':'Only saved on this browser profile.';
+    $('[data-library-hint]').textContent=auth.session?'Synced when changes are saved.':sharedOnline?'Changes save online without signing in.':desktopApp?'Private app storage · Export JSON for a backup.':localFile?fileWriter.link.handle.name:'Charts may be lost! Sign in to save with cloud.';
+    $('.local-storage').classList.toggle('storage-local',!desktopApp&&!auth.session&&!sharedOnline&&!localFile);
+    $('.local-storage').classList.toggle('storage-cloud',Boolean(desktopApp||auth.session||sharedOnline||localFile));
     for(const chart of store.data.charts){
       const button=document.createElement('button');button.type='button';button.disabled=deletingCharts.has(chart.id);button.setAttribute('aria-current',String(chart.id===store.current.id));
       const content=document.createElement('span'),title=document.createElement('strong'),detail=document.createElement('small');title.textContent=chart.name;detail.textContent=deletingCharts.has(chart.id)?'Deleting chart…':chart._localOnly?'Local only':chart._cloud?.unloaded?'Shared chart':`${Object.keys(chart.annotations).length} annotated${chart._cloud?.role==='viewer'?' · Viewer':''}`;content.append(title,detail);button.append(icon('chart'),content);button.addEventListener('click',()=>switchChart(chart.id));const row=document.createElement('div');row.className='chart-list-row';row.append(button);
@@ -207,7 +221,7 @@
     renderCloudStatus();
     const el=$('[data-save-status]');const dirty=JSON.stringify(draft)!==baseline;
     form.querySelector('.save-button').disabled=!dirty||Boolean(preview)||!canEdit();
-    el.replaceChildren(icon(store.error?'info':dirty?'info':'check-circle'),document.createTextNode(deletingCharts.has(store.current.id)?'Deleting chart…':store.error?'Local backup unavailable':cloudError?(store.current._cloudUnavailable?'Saved in backup · cloud sync pending':'Cloud save failed'):cloudBusy?'Saving online…':store.error?'Local backup unavailable':preview?'History preview':!canEdit()?'View only':dirty?(draft.status?'Saving…':'Choose a status to save'):store.current._cloudPending||store.current._cloudUnavailable?'Saved in backup · cloud sync pending':store.current._cloud?.revision?'Saved online':store.current._localOnly?'Saved locally':auth.session?'Not yet saved online':'Saved in this browser'));
+    el.replaceChildren(icon(store.error?'info':dirty?'info':'check-circle'),document.createTextNode(deletingCharts.has(store.current.id)?'Deleting chart…':store.error?'Local backup unavailable':cloudError?(store.current._cloudUnavailable?'Saved in backup · cloud sync pending':'Cloud save failed'):cloudBusy?'Saving online…':store.error?'Local backup unavailable':preview?'History preview':!canEdit()?'View only':dirty?(draft.status?'Saving…':'Choose a status to save'):store.current._cloudPending||store.current._cloudUnavailable?'Saved in backup · cloud sync pending':store.current._cloud?.revision?'Saved online':store.current._localOnly?'Saved locally':auth.session?'Not yet saved online':desktopApp?'Saved in this app':'Saved in this browser'));
     el.classList.toggle('dirty',dirty||Boolean(store.error));
     $('[data-storage-error]').hidden=!store.error;$('[data-storage-error]').textContent=store.error||'';
   }
@@ -569,6 +583,8 @@
     }finally{if(target===store&&epoch===fileConnectionEpoch){filePreparing=false;renderFileStatus();}}
   }
   async function restoreFileConnection(){
+    syncStorageContext();
+    if(desktopApp){renderFileStatus();return;}
     const target=store,scope=accountId||'guest',epoch=fileConnectionEpoch;
     if(fileWriter.connected||rememberedFile||!(storageChoice.primary==='file'||storageChoice.backup==='file'))return;
     try{
@@ -715,7 +731,7 @@
     try{storage.setItem(tourPendingKey,'true');}catch{}
     tourActive=true;
     welcomeTask=(async()=>{
-      const intro=await showDialog({title:'Welcome to Teeth Chart App',iconSrc:'/assets/downloads/icons/Teeth-Chart-App-Icon-1024.png',build(body){
+      const intro=await showDialog({title:'Welcome to Teeth Chart App',iconSrc:'/tools/teeth-chart/logo.png?v=20261011transparent',build(body){
         const opening=document.createElement('p');opening.className='tour-intro-opening';opening.textContent='Do you always remember which of your teeth are permanent, which are deciduous (milk teeth), and which are wisdom teeth? It can be hard to keep track, especially for children. Teeth Chart App stores that information for you. Mark your teeth once and keep your chart saved. You can also share it with others online and offline. JSON files integrate with offline Teeth Chart App as well.';
         const more=document.createElement('details');more.className='tour-intro-more';const summary=document.createElement('summary');summary.textContent='More…';more.append(summary);
         for(const text of [
@@ -748,39 +764,41 @@
     return next==='choose'&&await connectLocalFile(change);
   }
   async function backupOptions(){
+    syncStorageContext();
     // Browser persistence remains the safety net when file permission is declined.
     const result=await showDialog({title:'Choose your backup',build(body){
       const intro=document.createElement('p');intro.textContent='Changes will save to your main storage and your backup. If cloud saving is unavailable, keep editing; pending changes upload automatically when the connection returns.';body.append(intro);
       const cards=document.createElement('div');cards.className='storage-choices';
-      for(const [value,title,text]of [['browser','Browser History (localStorage)','Saved automatically in this browser profile, including after refreshes. Clearing site data removes this backup.'],['file','Local JSON file','Save changes to Online Teeth Chart App.json as well. Select the file and allow read/write access. This browser remembers the file; if access expires, use Reconnect file to allow access again.']]){
+      for(const [value,title,text]of [['browser','Browser History (localStorage)','Saved automatically in this browser profile, including after refreshes. Clearing site data removes this backup.'],desktopApp?['local','Local App Storage','Stores charts as app data for this app. Deleted when you clear this app’s data.']:['file','Local JSON file','Save changes to Online Teeth Chart App.json as well. Select the file and allow read/write access. This browser remembers the file; if access expires, use Reconnect file to allow access again.']]){
         const button=document.createElement('button');button.type='button';button.className='storage-choice';
         const heading=document.createElement('strong');heading.textContent=title;const description=document.createElement('p');description.textContent=text;button.append(heading,description);
         if(value==='file'&&storageChoice.primary==='file'){button.disabled=true;description.textContent='Already your main storage. Choose Browser History for a separate backup.';}
         button.addEventListener('click',()=>{if(value==='file'&&!fileWriter.connected&&!rememberedFile)window.open('/tools/teeth-chart/save-locally/','_blank','noopener');$('[data-dialog]').close(value);});cards.append(button);
       }
-      body.append(cards);const note=document.createElement('p');note.className='share-help';note.textContent='Cancel returns to Choose where to save. If your main storage is also Browser History, both use the same browser data; a JSON file gives you a separate copy.';body.append(note);
+      body.append(cards);const note=document.createElement('p');note.className='share-help';note.textContent=desktopApp?'Cancel returns to Choose where to save. Browser History and Local App Storage use the same private app data. Export JSON for a separate backup; clearing site data removes private charts.':'Cancel returns to Choose where to save. If your main storage is also Browser History, both use the same browser data; a JSON file gives you a separate copy.';body.append(note);
     },actions:[{label:'Cancel',value:'cancel'},{label:'Use browser backup',value:'browser',primary:true}]});
-    if(result!=='browser'&&result!=='file')return false;
+    if(result!=='browser'&&result!=='file'&&result!=='local')return false;
     if(result==='file'&&!await localFileSetup())return false;
-    storageChoice.backup=result;rememberStorage();
+    storageChoice.backup=result==='local'?'browser':result;rememberStorage();
     if(storageChoice.backup==='browser'&&storageChoice.primary!=='file'&&(fileWriter.connected||rememberedFile)){await saveFileNow().catch(()=>{});await forgetLocalFile();}
     store.persist();renderFileStatus();renderLibrary();return true;
   }
   async function storageOptions(){
+    syncStorageContext();
     if((!isHome()&&(blocked||libraryBusy))||accountDeleting||$('[data-dialog]').open||$('[data-auth-dialog]').open)return;
     welcomeSeen=true;try{storage.setItem(welcomeKey,'true');storage.setItem(tourPendingKey,'false');}catch{}
     const choice=await showDialog({title:'Choose where to save',build(body){
       const cards=document.createElement('div');cards.className='storage-choices';
       for(const [name,level,description,action] of [
         ['Save in Browser History','Insecure','Loads fastest. Browser data can be cleared.','browser'],
-        ['Save Locally','More secure','Create a JSON file on your computer named Online Teeth Chart App.json.','file'],
+        desktopApp?['Local App Storage','On this device','Stores charts as app data for this app. Deleted when you clear this app’s data.','local']:['Save Locally','More secure','Create a JSON file on your computer named Online Teeth Chart App.json.','file'],
         ['Save on Cloud','Most secure','Sign in right away.','cloud']]){
         const button=document.createElement('button');button.type='button';button.className='storage-choice';
-        const title=document.createElement('strong');title.textContent=name;const badge=document.createElement('span');badge.className='storage-security '+action;badge.textContent=level;const text=document.createElement('p');text.textContent=description;button.append(title,badge,text);
+        const title=document.createElement('strong');title.textContent=name;const badge=document.createElement('span');badge.className='storage-security '+(action==='local'?'file':action);badge.textContent=level;const text=document.createElement('p');text.textContent=description;button.append(title,badge,text);
         if(action!=='cloud'){const sync=document.createElement('small');sync.textContent='Saved to cloud after sign in.';button.append(sync);}
         button.addEventListener('click',()=>{if(action==='file'&&!fileWriter.connected&&!rememberedFile)window.open('/tools/teeth-chart/save-locally/','_blank','noopener');$('[data-dialog]').close(action);});cards.append(button);
       }
-      const note=document.createElement('p');note.className='share-help';note.textContent='At sign-in, choose Merge with cloud or Keep local for now. These labels describe protection from losing browser data; access depends on your device and sharing settings. Your JSON file is remembered in this browser. If permission expires, use Reconnect file to allow access again.';body.append(cards,note);
+      const note=document.createElement('p');note.className='share-help';note.textContent=desktopApp?'At sign-in, choose Merge with cloud or Keep local for now. Local App Storage is automatic. Export JSON for a separate backup and use Import Backup JSON file to restore charts. Clearing site data removes private charts.':'At sign-in, choose Merge with cloud or Keep local for now. These labels describe protection from losing browser data; access depends on your device and sharing settings. Your JSON file is remembered in this browser. If permission expires, use Reconnect file to allow access again.';body.append(cards,note);
       const summary=document.createElement('p');summary.className='share-help';summary.textContent='Backup: '+(storageChoice.backup==='file'?'local JSON file'+(fileWriter.connected?'':' (reconnect required)'):'Browser History (localStorage)');body.append(summary);
       if(fileWriter.connected){const current=document.createElement('p');current.className='share-help';current.textContent='Connected file: '+fileWriter.link.handle.name;body.append(current);}
       else if(rememberedFile){
@@ -799,8 +817,8 @@
       return;
     }
     if(choice==='change-file'&&!await localFileSetup(true))return storageOptions();
-    if(choice==='browser'||choice==='cloud'||choice==='signin'){
-      storageChoice.primary=choice==='browser'?'browser':'cloud';rememberStorage();
+    if(choice==='browser'||choice==='local'||choice==='cloud'||choice==='signin'){
+      storageChoice.primary=(choice==='browser'||choice==='local')?'browser':'cloud';rememberStorage();
       if(!await backupOptions())return storageOptions();
       if(choice==='cloud'||choice==='signin'){if(!auth.session){$('[data-auth-dialog]').addEventListener('close',()=>{if(!auth.session&&$('[data-auth-dialog]').returnValue!=='signed-in')storageOptions();},{once:true});auth.show();}else{await stageBrowserCharts();syncBrowserCharts();retryCloud();render();}}
     }
@@ -1042,13 +1060,13 @@
   function renderHome(){
     if(!isHome())return;
     renderCloudStatus();
-    document.title='Online Teeth Chart App — Dental Charting';auth.renderAccount();
+    document.title='Teeth Chart App';auth.renderAccount();
     const local=store.data.charts.filter(c=>!c._cloud&&!c._starter).map(c=>({...c,local:true}));
     const known=new Set(local.map(c=>c.id));
     window.TeethLibrary.render($('[data-library-grid]'),{charts:[...local,...homeCards.filter(c=>!known.has(c.id))],email:auth.session?.user.email,onOpen:switchChart,onDelete:deleteChart,filter:$('[data-library-search]').value});
     $('[data-library-status]').textContent=homeError|| (homeLoading?'Loading your cloud library…':'');
     $('[data-library-retry]').hidden=!homeError;
-    $('[data-home-storage]').textContent=(auth.session?'Signed in as '+auth.session.user.email:'Local charts are saved in this browser profile. Sign in to save with cloud.')+((storageChoice.backup==='file'||storageChoice.primary==='file')&&!fileWriter.connected?' Reconnect your JSON file in Save options.':'');
+    $('[data-home-storage]').textContent=(auth.session?'Signed in as '+auth.session.user.email:desktopApp?'Local charts are saved automatically in this app. Export JSON for a backup.':'Local charts are saved in this browser profile. Sign in to save with cloud.')+((storageChoice.backup==='file'||storageChoice.primary==='file')&&!fileWriter.connected?' Reconnect your JSON file in Save options.':'');
   }
   let homeRequest=null;
   async function refreshHome(){
@@ -1155,6 +1173,7 @@
     if(wasGuest&&next&&!cloud.routeId())window.history.replaceState({},'', homePath());
     preview=null;cloudError='';await loadLibrary();syncBrowserCharts();await restoreFileConnection();
   });
+  window.TeethInstallation.appQueries.forEach(query=>matchMedia(query).addEventListener('change',()=>{if(syncStorageContext()){renderLibrary();renderFileStatus();renderSaveStatus();restoreFileConnection();}}));
   window.addEventListener('online',()=>{autosave.flush();retryCloud();if(auth.session)syncBrowserCharts();});
   window.addEventListener('focus',()=>{if(Date.now()>=retryAfter)retryCloud();});
   window.addEventListener('popstate',async()=>{

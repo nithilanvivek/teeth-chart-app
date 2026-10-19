@@ -2,6 +2,12 @@
 
 Open-source app editions by Nithilan Vivek. [Project website](https://nithi.land/projects/pyinstaller-teeth-chart-app/). MIT applies to original code/assets; see [LICENSE](LICENSE) and [third-party notices](THIRD-PARTY-NOTICES.md).
 
+## Browser versions
+
+- **v2.1**: the current installed desktop PWA saves automatically in Local App Storage. Browser tabs and mobile app windows retain the JSON-file choices. Cloud saving remains optional.
+- **[v2.0 source](https://github.com/nithilanvivek/teeth-chart-app/tree/v2.0/tools/teeth-chart)**: the preceding browser edition with manual JSON-file setup, before the installed desktop Local App Storage flow.
+- The v1 native desktop/mobile downloads are preserved separately. Browser version numbers are independent of the Microsoft Store wrapper version: the existing 2.0.0.0 Store package loads the current hosted app.
+
 ## Source editions
 
 - `assets/downloads/teeth-chart-app/TeethChartApp.py`: v1 desktop source for Windows/macOS/Linux (Python standard library and Tkinter).
@@ -15,7 +21,7 @@ Open-source app editions by Nithilan Vivek. [Project website](https://nithi.land
 
 Download packages from [GitHub Releases](https://github.com/nithilanvivek/teeth-chart-app/releases). Compiled packages are release attachments, not committed to source history. Checksums accompany downloads. Existing files are republished unchanged; publishing them does not add new platform testing or signing.
 
-The downloadable desktop/mobile release is v1.0. The Microsoft Store upload package declares 1.0.0.0. The browser edition is a current source snapshot and is not the code contained in that older desktop MSIX. Existing iOS packages use device-specific development signing and are not attached as public installers.
+The downloadable native desktop/mobile release is v1.0. The current Microsoft Store PWA wrapper uses modern package 2.0.0.0 and optional classic 1.9.0.0; the older native desktop MSIX is a separate edition. Existing iOS packages use device-specific development signing and are not attached as public installers.
 
 ## Browser setup and tests
 

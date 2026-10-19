@@ -5,19 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f6f8fb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Teeth Chart">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="/tools/teeth-chart/icons/apple-touch-icon.png?v=20261012safari">
   <meta name="description" content="A quiet workspace for dental charting. Annotate teeth and gum spaces, keep chart history, and save or share charts online.">
-  <title>Online Teeth Chart App — Dental Charting</title>
+  <title>Teeth Chart App</title>
   <link rel="canonical" href="https://teeth.nithi.land/">
-  <meta property="og:title" content="Online Teeth Chart App — Dental Charting">
+  <meta property="og:title" content="Teeth Chart App">
   <meta property="og:description" content="Annotate teeth and gum spaces, keep chart history, and save or share charts online.">
   <meta property="og:url" content="https://teeth.nithi.land/">
-  <link rel="icon" type="image/png" href="/tools/teeth-chart/favicon.png?v=20260911m">
-  <link rel="stylesheet" href="/tools/teeth-chart/styles.css?v=20261011c">
+  <link rel="icon" sizes="16x16 32x32 48x48 64x64 128x128 256x256" href="/tools/teeth-chart/favicon.ico?v=20261012safari">
+  <link rel="icon" type="image/png" href="/tools/teeth-chart/favicon.png?v=20261012safari">
+  <link rel="stylesheet" href="/tools/teeth-chart/styles.css?v=20261012local1">
 </head>
 <body>
   <aside class="domain-move" data-old-library hidden><strong>Recover charts from the old address</strong><p>Download charts saved in this browser, then open teeth.nithi.land and choose Import Backup JSON file. Cloud charts return after sign-in. Select your saved JSON file again at the new address to reconnect it.</p><button class="button" data-action="download-library">Download browser backup</button> <a href="https://teeth.nithi.land/">Open Teeth Chart App</a></aside>
   <main class="library-home" data-library-home hidden>
-    <header class="library-header"><a class="brand" href="https://teeth.nithi.land/"><img src="/assets/downloads/icons/Teeth-Chart-App-Icon-1024.png" width="44" height="44" alt=""><span>Teeth Chart App<small>by nithi.land</small></span></a><div class="library-header-actions"><button class="button" data-action="help" aria-label="Help" title="Restart the tour"><i data-icon="help"></i><span>Help</span></button><button class="button" data-action="storage">Save options</button><button class="button" data-action="account" data-account-button>Sign in</button></div></header>
+    <header class="library-header"><a class="brand" href="https://teeth.nithi.land/"><img src="/tools/teeth-chart/logo.png?v=20261011transparent" width="44" height="44" alt=""><span>Teeth Chart App<small>by nithi.land</small></span></a><div class="library-header-actions"><button class="button" type="button" data-install-teeth hidden><i data-icon="install"></i><span>Install app</span></button><button class="button" data-action="help" aria-label="Help" title="Restart the tour"><i data-icon="help"></i><span>Help</span></button><button class="button" data-action="storage">Save options</button><button class="button" data-action="account" data-account-button>Sign in</button></div></header>
+    <aside class="library-install-card" data-install-local-card hidden><p>Install the app from your browser to get automatic local storage without manual json files. (Automatic storage feature does not work on tablets and phones)</p><button class="button" type="button" data-install-teeth hidden><i data-icon="install"></i><span>Install App</span></button></aside>
     <section class="library-intro"><div><span class="eyebrow">YOUR LIBRARY</span><h1>Your charts</h1><p>Annotate teeth and gum spaces, keep chart history, and save or share your dental charts.</p></div></section>
     <section class="template-gallery" aria-labelledby="template-heading"><h2 id="template-heading">Start a new chart</h2><div class="template-grid" data-template-gallery></div></section>
     <div class="library-toolbar"><label class="library-search"><span class="sr-only">Search charts</span><input type="search" data-library-search placeholder="Search your charts" aria-label="Search charts"></label><span>Last edited · newest first</span><button class="button" data-action="import-backup">Import Backup JSON file</button></div>
@@ -27,11 +33,11 @@
     <section class="library-grid" data-library-grid aria-label="Chart library"></section>
     <footer class="library-footer"><span data-home-storage></span><a data-recover-library href="https://nithi.land/tools/teeth-chart/" hidden>Recover charts from the old address</a><a href="https://nithi.land/privacy/teeth/">Privacy</a><a href="https://nithi.land/">nithi.land</a></footer>
   </main>
-  <script>if((location.hostname==='teeth.nithi.land'&&location.pathname==='/')||/^\/(?:teeth|t|tools\/teeth-chart)\/?$/.test(location.pathname)){document.querySelector('[data-library-home]').hidden=false;document.title='Online Teeth Chart App — Dental Charting';}</script>
+  <script>if((location.hostname==='teeth.nithi.land'&&location.pathname==='/')||/^\/(?:teeth|t|tools\/teeth-chart)\/?$/.test(location.pathname)){document.querySelector('[data-library-home]').hidden=false;document.title='Teeth Chart App';}</script>
   <button class="button exit-fullscreen" data-action="exit-fullscreen" data-exit-fullscreen hidden aria-label="Exit full screen">Exit full screen</button>
   <div class="app-shell" hidden>
     <aside class="sidebar" aria-label="Saved charts">
-      <a class="brand" href="https://teeth.nithi.land/" aria-label="Chart library"><img src="/assets/downloads/icons/Teeth-Chart-App-Icon-1024.png" width="40" height="40" alt=""><span>Teeth Chart App<small>by nithi.land</small></span></a>
+      <a class="brand" href="https://teeth.nithi.land/" aria-label="Chart library"><img src="/tools/teeth-chart/logo.png?v=20261011transparent" width="40" height="40" alt=""><span>Teeth Chart App<small>by nithi.land</small></span></a>
       <button class="sidebar-action" data-action="home"><i data-icon="home"></i> All charts</button><div class="sidebar-heading"><span>MY CHARTS</span><button class="icon-button" data-action="new" aria-label="New chart" title="New chart"><i data-icon="plus"></i></button></div>
       <nav class="chart-list" data-chart-list aria-label="Choose a chart"></nav>
       <button class="new-chart" data-action="new"><i data-icon="plus"></i> New chart</button>
@@ -45,7 +51,7 @@
     <main class="workspace">
       <header class="workspace-header">
         <div class="header-title"><span class="eyebrow">YOUR WORKSPACE</span><div class="chart-title-row"><h1 data-chart-name>My first chart</h1><button class="icon-button rename-chart" data-action="rename" aria-label="Rename chart" title="Rename chart"><i data-icon="pencil"></i></button></div><span class="save-status" data-save-status role="status"><i data-icon="check-circle"></i> Saved in this browser</span></div>
-        <div class="header-actions"><button class="button" data-action="help" aria-label="Help" title="Restart the tour"><i data-icon="help"></i><span>Help</span></button><button class="button" data-action="home" aria-label="All charts" title="All charts"><i data-icon="home"></i></button><button class="button" data-action="storage" aria-label="Save options"><i data-icon="device"></i><span>Save options</span></button><button class="button" data-action="fullscreen" aria-label="Full screen"><i data-icon="fullscreen"></i></button><button class="button" data-action="account" data-account-button disabled>Checking account…</button><button class="button primary" data-action="share"><i data-icon="share"></i><span>Share</span></button><button class="button" data-action="copy">Make a copy</button><button class="button" data-action="history"><i data-icon="history"></i><span>History</span></button><button class="button" data-action="import" aria-label="Import chart" title="Import chart"><i data-icon="import"></i><span>Import chart</span></button><button class="button" data-action="export"><i data-icon="export"></i><span>Export</span></button></div>
+        <div class="header-actions"><button class="button" type="button" data-install-teeth hidden><i data-icon="install"></i><span>Install app</span></button><button class="button" data-action="help" aria-label="Help" title="Restart the tour"><i data-icon="help"></i><span>Help</span></button><button class="button" data-action="home" aria-label="All charts" title="All charts"><i data-icon="home"></i></button><button class="button" data-action="storage" aria-label="Save options"><i data-icon="device"></i><span>Save options</span></button><button class="button" data-action="fullscreen" aria-label="Full screen"><i data-icon="fullscreen"></i></button><button class="button" data-action="account" data-account-button disabled>Checking account…</button><button class="button primary" data-action="share"><i data-icon="share"></i><span>Share</span></button><button class="button" data-action="copy">Make a copy</button><button class="button" data-action="history"><i data-icon="history"></i><span>History</span></button><button class="button" data-action="import" aria-label="Import chart" title="Import chart"><i data-icon="import"></i><span>Import chart</span></button><button class="button" data-action="export"><i data-icon="export"></i><span>Export</span></button></div>
       </header>
       <div class="mobile-chart-switch"><button class="icon-button" data-action="delete-chart" title="Delete chart" aria-label="Delete current chart"><i data-icon="trash"></i></button><label for="chart-select">Chart</label><select id="chart-select" data-chart-select></select><button class="icon-button" data-action="new" aria-label="Create chart"><i data-icon="plus"></i></button><button class="icon-button" data-action="reload" aria-label="Reload saved charts"><i data-icon="history"></i></button><button class="icon-button" data-action="import-backup" aria-label="Import Backup JSON file" title="Import Backup JSON file"><i data-icon="import"></i></button></div>
       <div class="preview-banner" data-preview-banner hidden><div><i data-icon="history"></i><span>Viewing an earlier version<small data-preview-time></small></span></div><div><button class="button" data-action="exit-preview">Back to current</button><button class="button primary" data-action="restore">Restore version</button></div></div>
@@ -112,18 +118,20 @@
   </dialog>
   <input type="file" data-import-chart-file accept=".json,application/json" hidden>
   <input type="file" data-import-file accept=".json,application/json" hidden>
+  <dialog class="dialog" data-pwa-install-dialog aria-labelledby="pwa-install-title"><div class="dialog-header"><h2 id="pwa-install-title">Install Teeth Chart App</h2><button class="icon-button" type="button" data-close-pwa-install aria-label="Close install instructions">×</button></div><div class="dialog-body"><button class="button primary" type="button" data-pwa-native-install hidden>Install app</button><p>Keep Teeth Chart on your device with an app icon and its own window.</p><ul class="pwa-install-steps"><li><strong>iPhone or iPad:</strong> open in Safari, tap Share, then Add to Home Screen.</li><li><strong>Android:</strong> open the browser menu and choose Install app or Add to Home screen.</li><li><strong>Computer:</strong> use Chrome or Edge’s install icon or menu. In Safari on Mac, choose File → Add to Dock.</li></ul><p data-teeth-offline-status role="status"></p><p>After offline setup finishes, you can disconnect. Local charts and downloaded cloud charts can then reopen offline. Signed-in cloud changes sync when you reconnect with the app open.</p><p>On Apple devices, the installed app can have separate storage. Sync your charts to your account or export and import a JSON backup to transfer browser charts. Keep a cloud or JSON backup of important charts.</p></div></dialog>
   <dialog class="dialog" data-dialog aria-labelledby="dialog-title"><div class="dialog-header"><h2 id="dialog-title"></h2><button class="icon-button" data-close-dialog aria-label="Close dialog"><i data-icon="close"></i></button></div><div class="dialog-body" data-dialog-body></div><div class="dialog-actions" data-dialog-actions></div></dialog>
   <div class="toast" data-toast role="status" hidden><i data-icon="check-circle"></i><span></span></div>
   <noscript><div class="noscript"><h1>Online Teeth Chart App</h1><p>Annotate teeth and gum spaces, keep chart history, and save or share charts online. Enable JavaScript to open your chart library.</p></div></noscript>
   <script>if((location.hostname==='teeth.nithi.land'&&location.pathname==='/')||/^\/(?:teeth|t|tools\/teeth-chart)\/?$/.test(location.pathname))document.querySelector('[data-access-gate]').hidden=true;</script>
+  <script src="/tools/teeth-chart/installation.js?v=20261012local3"></script>
+  <script src="/tools/teeth-chart/pwa.js?v=20261012safari"></script>
   <script src="/tools/teeth-chart/vendor/supabase-2.116.0.js"></script><script src="/tools/teeth-chart/config.js?v=20261011c"></script><script src="/tools/teeth-chart/auth.js?v=20261011a"></script><script src="/tools/teeth-chart/cloud.js?v=20261011c"></script>
-  <script src="/tools/teeth-chart/model.js?v=20260920b"></script><script src="/tools/teeth-chart/chart.js?v=20260920b"></script><script src="/tools/teeth-chart/access.js?v=20260912f"></script><script src="/tools/teeth-chart/autosave.js?v=20260912f"></script><script src="/tools/teeth-chart/navigation.js?v=20261011c"></script>
+  <script src="/tools/teeth-chart/model.js?v=20260920b"></script><script src="/tools/teeth-chart/chart.js?v=20260920b"></script><script src="/tools/teeth-chart/access.js?v=20260912f"></script><script src="/tools/teeth-chart/autosave.js?v=20260912f"></script><script src="/tools/teeth-chart/navigation.js?v=20261012local1"></script>
   <script src="/tools/teeth-chart/sync.js?v=20260912f"></script>
   <script src="/tools/teeth-chart/local-file.js?v=20261005a"></script>
   <script src="/tools/teeth-chart/library.js?v=20261011c"></script>
-  <script src="/tools/teeth-chart/tour.js?v=20261011b"></script>
+  <script src="/tools/teeth-chart/tour.js?v=20261012local2"></script>
   <script src="/tools/teeth-chart/backup.js?v=20260912f"></script>
-  <script src="/tools/teeth-chart/app.js?v=20261011c"></script>
-  <script src="/src/devtools-greeting.js"></script>
+  <script src="/tools/teeth-chart/app.js?v=20261012local3"></script>
 </body>
 </html>

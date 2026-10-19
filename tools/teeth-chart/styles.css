@@ -80,3 +80,6 @@
 .cloud-save-status.pending{background:#edf4ff;color:#245ca3}
 
 .domain-move{padding:20px 40px;background:#eaf3ff;color:#344c6b;line-height:1.6}.domain-move p{margin:8px 0 12px;max-width:900px}.domain-move a{color:#096ddd}.library-footer{flex-wrap:wrap}@media(max-width:560px){.domain-move{padding:18px 16px}}
+
+.pwa-install-steps{padding-left:20px;margin:16px 0}.pwa-install-steps li{margin:12px 0;line-height:1.6}
+.library-install-card{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:24px;padding:20px 24px;background:#edf5ff;border:1px solid #d5e6fb;border-radius:12px;color:#344c6b}.library-install-card p{font-size:14px;line-height:1.6}.library-install-card .button{flex-shrink:0}@media(max-width:560px){.library-install-card{gap:12px;padding:16px}.library-install-card p{font-size:12px}.library-install-card .button{padding:9px;font-size:12px}}

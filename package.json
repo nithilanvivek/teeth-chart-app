@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/serve-static.mjs --port 4174",
-    "test": "node --test tests/teeth-chart-*.test.js"
+    "test": "node --test tests/teeth-chart-*.test.js",
+    "build:teeth-pwa": "node scripts/generate-teeth-pwa.mjs",
+    "check:teeth-pwa": "node scripts/generate-teeth-pwa.mjs --check"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8"

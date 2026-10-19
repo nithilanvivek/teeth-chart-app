@@ -4,10 +4,11 @@ const {Store}=require('../tools/teeth-chart/model.js');
 const {requiresSessionCheck,openChart,latestChart,basePath,homePath,chartPath,isHome}=require('../tools/teeth-chart/navigation.js');
 const {chartUrl,routeId}=require('../tools/teeth-chart/cloud.js');
 
-test('new shared links use the subdomain and legacy chart paths still identify the same chart',()=>{
+test('new shared links use the deployment origin and legacy chart paths still identify the same chart',()=>{
   const id='00000000-0000-4000-8000-000000000099',previous=globalThis.location;
   try{
-    assert.equal(chartUrl(id),'https://teeth.nithi.land/'+id);
+    globalThis.location={origin:'https://example.test',pathname:'/'};
+    assert.equal(chartUrl(id),'https://example.test/'+id);
     for(const pathname of ['/teeth/'+id,'/teeth/'+id+'/', '/t/'+id,'/tools/teeth-chart/'+id]){
       globalThis.location={pathname};assert.equal(routeId(),id);
     }

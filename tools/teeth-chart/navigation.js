@@ -2,7 +2,7 @@
   'use strict';
   function basePath(location=root.location){
     if(location?.hostname==='teeth.nithi.land')return '';
-    return location?.pathname.startsWith('/tools/teeth-chart/')?'/tools/teeth-chart':'/teeth';
+    return /^\/tools\/teeth-chart(?:\/|$)/.test(location?.pathname||'')?'/tools/teeth-chart':'/teeth';
   }
   const homePath=()=>basePath()==='/teeth'?'/teeth':basePath()+'/';
   const chartPath=id=>basePath()+'/'+encodeURIComponent(id);
